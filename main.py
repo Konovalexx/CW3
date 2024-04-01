@@ -34,10 +34,13 @@ def mask_operation_info(operation):
 
 def format_date(operations):
     date = operations['date']
-    return dt.datetime.strptime(date, "%m/%d/%Y").strftime("%Y-%m-%d")
+    dt_time = dt.datetime.strptime(date, "%Y-%m-%dT%H:%M:%S.%f")
+    return dt_time.strftime("%d.%m.%Y")
 
 data = open_json_file()
 operations = filter_operations(data)
 operations = sort_operations(operations)[:5]
 for i in operations:
-    print(i)
+    print(format_date(i))
+for i in operations:
+    print(mask_operation_info(i))
