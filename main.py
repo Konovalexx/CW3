@@ -1,4 +1,5 @@
 import json
+import datetime as dt
 
 def open_json_file():
     with open('operations.json', encoding='utf-8') as f:
@@ -13,11 +14,30 @@ def filter_operations(operations_data):
     return filtered_list
 
 def sort_operations(operations_data: list[dict]) -> list[dict]:
-    sorted_list = sorted(operations_data, key=lambda x: x['date'])
+    sorted_list = sorted(operations_data, key=lambda x: x['date'], reverse=True)
     return sorted_list
 
 
+def mask_operation_info(operation):
+    operation_from = operation.get('from')
+    operation_to = operation.get('to')
+
+    if operation_from:
+        parts = operation_from.split(' ')
+        numbers = parts[-1]
+        if len(numbers) == 16:
+            masked_numbers = f"{numbers[:4]} {numbers[4:6]}** **** {numbers[-4:]}"
+            return f"{" ".join(parts[:-1])} {masked_numbers}"
+        else:
+            return f'Счет **{numbers[-4:]}'
+
+
+def format_date(operations):
+    date = operations['date']
+    return dt.datetime.strptime(date, "%m/%d/%Y").strftime("%Y-%m-%d")
+
 data = open_json_file()
 operations = filter_operations(data)
-operations = sort_operations(operations)
-print(operations)
+operations = sort_operations(operations)[:5]
+for i in operations:
+    print(i)
