@@ -8,7 +8,7 @@ def open_json_file():
     Returns:
         dict: Словарь с данными из файла 'operations.json'.
     """
-    with open('operations.json', encoding='utf-8') as f:
+    with open('../operations.json', encoding='utf-8') as f:
         return json.load(f)
 
 def filter_operations(operations_data):
