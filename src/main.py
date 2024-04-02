@@ -8,7 +8,7 @@ def open_json_file():
     Returns:
         dict: Словарь с данными из файла 'operations.json'.
     """
-    with open('operations.json', encoding='utf-8') as f:
+    with open('../operations.json', encoding='utf-8') as f:
         return json.load(f)
 
 def filter_operations(operations_data):
@@ -21,11 +21,7 @@ def filter_operations(operations_data):
     Returns:
         list: Фильтрованный список операций.
     """
-    filtered_list = []
-    for operation in operations_data:
-        if operation.get('state') == 'EXECUTED':
-            filtered_list.append(operation)
-    return filtered_list
+    return [operation for operation in operations_data if operation.get('state') == 'EXECUTED']
 
 def sort_operations(operations_data: list[dict]) -> list[dict]:
     """
@@ -37,8 +33,7 @@ def sort_operations(operations_data: list[dict]) -> list[dict]:
     Returns:
         list[dict]: Отсортированный список операций.
     """
-    sorted_list = sorted(operations_data, key=lambda x: x['date'], reverse=True)
-    return sorted_list
+    return sorted(operations_data, key=lambda x: x['date'], reverse=True)
 
 def mask_operation_info(operation):
     """
@@ -50,17 +45,35 @@ def mask_operation_info(operation):
     Returns:
         str: Маскированная информация об операции.
     """
+    def mask_credit_card_or_account(number):
+        if len(number) == 16:
+            return f"{number[:4]} {number[4:6]}** **** {number[-4:]}"
+        else:
+            return '*' * (len(number) - 4) + number[-4:]
+
     operation_from = operation.get('from')
     operation_to = operation.get('to')
 
-    if operation_from:
+    if operation_from and operation_to:
+        from_parts = operation_from.split(' ')
+        to_parts = operation_to.split(' ')
+        from_numbers = from_parts[-1]
+        to_numbers = to_parts[-1]
+        masked_from_numbers = mask_credit_card_or_account(from_numbers)
+        masked_to_numbers = mask_credit_card_or_account(to_numbers)
+        return f"{from_parts[0]} {masked_from_numbers} -> {to_parts[0]} {masked_to_numbers}"
+    elif operation_from:
         parts = operation_from.split(' ')
         numbers = parts[-1]
-        if len(numbers) == 16:
-            masked_numbers = f"{numbers[:4]} {numbers[4:6]}** **** {numbers[-4:]}"
-            return f"{" ".join(parts[:-1])} {masked_numbers}"
-        else:
-            return f'Счет **{numbers[-4:]}'
+        masked_numbers = mask_credit_card_or_account(numbers)
+        return f"{parts[0]} {masked_numbers}"
+    elif operation_to:
+        parts = operation_to.split(' ')
+        numbers = parts[-1]
+        masked_numbers = mask_credit_card_or_account(numbers)
+        return f"{parts[0]} {masked_numbers}"
+    else:
+        return "Неизвестный источник или получатель"
 
 def format_date(operations):
     """
@@ -81,8 +94,7 @@ operations = filter_operations(data)
 operations = sort_operations(operations)[:5]
 
 for operation in operations:
-    print(format_date(operation))
-    print(operation['description'])
+    print(format_date(operation), operation['description'], end="\n")
     print(mask_operation_info(operation))
     print(f"{operation['operationAmount']['amount']} {operation['operationAmount']['currency']['name']}")
-    print() # Добавляем пустую строку для разделителя
+    print()

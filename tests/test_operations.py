@@ -1,6 +1,5 @@
 import pytest
-import json
-from main import open_json_file, filter_operations, sort_operations, mask_operation_info, format_date
+from src.main import open_json_file, filter_operations, sort_operations, mask_operation_info, format_date
 
 @pytest.fixture
 def mock_operations_data():

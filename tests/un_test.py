@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch, mock_open
 import json
-from main import open_json_file, filter_operations, sort_operations, mask_operation_info, format_date
+from src.main import open_json_file, filter_operations, sort_operations, mask_operation_info, format_date
 
 class TestOperations(unittest.TestCase):
 
