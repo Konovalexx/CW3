@@ -46,10 +46,10 @@ def mask_operation_info(operation):
         str: Маскированная информация об операции.
     """
     def mask_credit_card_or_account(number):
-        if len(number) == 16:
+        if len(number) == 16: # Предполагается, что это номер карты
             return f"{number[:4]} {number[4:6]}** **** {number[-4:]}"
         else:
-            return '*' * (len(number) - 4) + number[-4:]
+            return '**' + number[-4:] # Для счетов, сохраняем 2 звездочки и 4 последних цифры
 
     operation_from = operation.get('from')
     operation_to = operation.get('to')
