@@ -1,5 +1,6 @@
 import json
 import datetime as dt
+import re
 
 def open_json_file():
     """
@@ -54,13 +55,15 @@ def mask_operation_info(operation):
     operation_to = operation.get('to')
 
     if operation_from:
-        parts = operation_from.split(' ')
-        numbers = parts[-1]
-        if len(numbers) == 16:
-            masked_numbers = f"{numbers[:4]} {numbers[4:6]}** **** {numbers[-4:]}"
-            return f"{" ".join(parts[:-1])} {masked_numbers}"
-        else:
-            return f'Счет **{numbers[-4:]}'
+        # Маскировка номера кредитной карты
+        masked_from = re.sub(r'\d', '*', operation_from[:-4]) + operation_from[-4:]
+        # Маскировка номера счета получателя
+        masked_to = re.sub(r'\d', '*', operation_to[:-4]) + operation_to[-4:]
+        return f"{masked_from} -> {masked_to}"
+    else:
+        # Маскировка номера счета получателя
+        masked_to = re.sub(r'\d', '*', operation_to[:-4]) + operation_to[-4:]
+        return f"{masked_to}"
 
 def format_date(operations):
     """
